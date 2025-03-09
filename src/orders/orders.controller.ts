@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Inject } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { NATS_SERVICE } from 'src/config/services';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
 
 @Controller('orders')
@@ -11,13 +11,12 @@ export class OrdersController {
     @Inject(NATS_SERVICE) private readonly ordersClient: ClientProxy
   ) { }
 
-  @Post()
+    @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersClient.send("createOrderDto", createOrderDto)
+    return this.ordersClient.send("createOrder", createOrderDto)
       .pipe(
         catchError(error => {
-          console.log(error)
-          throw new Error("an error happened")
+          throw new RpcException(error)
         })
       )
   }

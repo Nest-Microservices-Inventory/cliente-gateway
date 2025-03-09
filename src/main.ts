@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { envs } from './config/envs';
 import { RpcCustomExceptionFilter } from './common/exceptions/rcp-custum-exception.filter';
 
@@ -14,6 +14,13 @@ async function bootstrap() {
 
   app.useGlobalFilters(
     new RpcCustomExceptionFilter()
+  )
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    })
   )
   await app.listen(envs.port);
   logger.log(`API gateway is running on: ${envs.port}`);
