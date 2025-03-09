@@ -1,17 +1,19 @@
-import { Controller, Get, Post, Body, Param, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Inject, UseGuards } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { NATS_SERVICE } from 'src/config/services';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
+import { AuthGuard } from 'src/auth/guards/auth.guad';
 
 @Controller('orders')
+@UseGuards(AuthGuard)
 export class OrdersController {
 
   constructor(
     @Inject(NATS_SERVICE) private readonly ordersClient: ClientProxy
   ) { }
 
-    @Post()
+  @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.ordersClient.send("createOrder", createOrderDto)
       .pipe(
